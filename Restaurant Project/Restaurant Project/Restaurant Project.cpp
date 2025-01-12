@@ -30,9 +30,13 @@ static bool compareStrings(const char* str1, const char* str2) {
 int main()
 {
 	char role[8];
+	std::cout << "Select a role: ";
 	std::cin >> role;
-
-	std::cout << role << std::endl;
+	while (compareStrings(role, "Manager")==0 && compareStrings(role, "Waiter")==0)
+	{
+		std::cout << "This role was invalid! Please select another one: ";
+		std::cin >> role;
+	}
 
 	struct Student {
 		char name[45];
