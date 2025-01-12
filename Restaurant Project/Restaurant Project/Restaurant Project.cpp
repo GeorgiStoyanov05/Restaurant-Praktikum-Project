@@ -27,7 +27,7 @@ static bool compareStrings(const char* str1, const char* str2) {
 	return areEqual;
 }
 
-static void DisplayUserOptions(const char* role) {
+static void displayUserOptions(const char* role) {
 	if (compareStrings(role, "Waiter"))
 	{
 		std::cout << "1) See the menu" << std::endl;
@@ -59,19 +59,35 @@ static void DisplayUserOptions(const char* role) {
 	}
 }
 
+static bool validateOption(int option, const char* role) {
+	if (compareStrings(role, "Manager") && (option < 1 || option>15)) {
+		return 0;
+	}
+	else if (compareStrings(role, "Waiter") && (option < 1 || option>8)) {
+		return 0;
+	}
+	return 1;
+}
+
 int main()
 {
 	char role[8];
 	std::cout << "Select a role: ";
 	std::cin >> role;
 
-	while (compareStrings(role, "Manager")==0 && compareStrings(role, "Waiter")==0)
+	while (compareStrings(role, "Manager") == 0 && compareStrings(role, "Waiter") == 0)
 	{
 		std::cout << "This role was invalid! Please select another one (Waiter or Manager): ";
 		std::cin >> role;
 	}
 
-	DisplayUserOptions(role);
+	displayUserOptions(role);
+	int option;
+	std::cin >> option;
+	while (validateOption(option, role)) {
+		std::cout << option<<std::endl;
+		std::cin >> option;
+	}
 
 	struct Student {
 		char name[45];
