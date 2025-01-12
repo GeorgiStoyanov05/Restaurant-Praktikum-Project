@@ -36,7 +36,8 @@ static void DisplayUserOptions(const char* role) {
 		std::cout << "4) See all previous orders" << std::endl;
 		std::cout << "5) See all previous orders, sorted in alphabetical order, as well as the number of orders of each dish" << std::endl;
 		std::cout << "6) See today's turnover" << std::endl;
-		std::cout << "7) Show all options again" << std::endl;
+		std::cout << "7) End your shift" << std::endl;
+		std::cout << "8) Show all options again" << std::endl;
 	}
 	else if (compareStrings(role, "Manager"))
 	{
@@ -53,7 +54,8 @@ static void DisplayUserOptions(const char* role) {
 		std::cout << "11) See all the turnovers from a certain day to today" << std::endl;
 		std::cout << "12) Add a dish to the Menu" << std::endl;
 		std::cout << "13) Remove a dish from the menu" << std::endl;
-		std::cout << "14) Show all options again" << std::endl;
+		std::cout << "14) End your day" << std::endl;
+		std::cout << "15) Show all options again" << std::endl;
 	}
 }
 
