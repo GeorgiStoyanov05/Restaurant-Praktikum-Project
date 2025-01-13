@@ -177,6 +177,35 @@ static int showRemainingProducts() {
 	}
 	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 }
+
+static int showAllPreviousOrders() {
+	ifstream file("Orders.txt");
+	if (!file.is_open()) return 0;
+	cout << "" << endl;
+	while (!file.eof()) {
+		string dish;
+		getline(file, dish);
+		if (dish == "") {
+			continue;
+		}
+		cout << dish << endl;
+	}
+	cout << "" << endl;
+}
+static int showSortedOrders() {
+	ifstream file("Orders.txt");
+	if (!file.is_open()) return 0;
+	cout << "" << endl;
+	while (!file.eof()) {
+		string dish;
+		getline(file, dish);
+		if (dish == "") {
+			continue;
+		}
+		cout << dish << endl;
+	}
+	cout << "" << endl;
+}
 /*
 static int showTodaysTurnover() {
 	ifstream file("Turnovers.txt");
@@ -220,6 +249,13 @@ int main()
 			std::cin >> order;
 			//makeAnOrder(order);
 			break;
+		}
+		if (option == 4) {
+			showAllPreviousOrders();
+			break;
+		}
+		if (option == 5) {
+			showSortedOrders();
 		}
 		if (option == 7 && role == "Manager") {
 			string product;
