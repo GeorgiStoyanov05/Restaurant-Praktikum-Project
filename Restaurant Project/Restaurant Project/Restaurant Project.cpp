@@ -5,7 +5,7 @@
 using namespace std;
 
 static void displayUserOptions(string role) {
-	if (role=="Waiter")
+	if (role == "Waiter")
 	{
 		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << "1) See the menu" << std::endl;
@@ -18,7 +18,7 @@ static void displayUserOptions(string role) {
 		std::cout << "8) Show all options again" << std::endl;
 		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	}
-	else if (role=="Manager")
+	else if (role == "Manager")
 	{
 		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << "1) See the menu" << std::endl;
@@ -41,22 +41,22 @@ static void displayUserOptions(string role) {
 }
 
 static bool validateOption(int option, string role) {
-	if (role!="Manager" && (option < 1 || option>15)) {
+	if (role != "Manager" && (option < 1 || option>15)) {
 		return 0;
 	}
-	else if (role!="Waiter" && (option < 1 || option>8)) {
+	else if (role != "Waiter" && (option < 1 || option>8)) {
 		return 0;
 	}
 	return 1;
 }
 
 static int printMenu() {
-	std::ifstream MyFile("Menu.txt");
-	if (!MyFile.is_open()) return 0;
+	std::ifstream file("Menu.txt");
+	if (!file.is_open()) return 0;
 	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
-	while (!MyFile.eof()) {
+	while (!file.eof()) {
 		string dish;
-		getline(MyFile, dish);
+		getline(file, dish);
 		int separatorIndex = dish.find('|');
 		string dishName = dish.substr(0, separatorIndex - 1);
 		std::cout << dish << std::endl;
@@ -64,12 +64,43 @@ static int printMenu() {
 	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	return 1;
 }
-
+/*
 static int makeAnOrder(string order) {
-	
-}
 
-static int addProductToStorage(const char* product, int amount) {
+}
+*/
+
+static int addProductToStorage(string product, int amount) {
+	bool isFound = 0;
+	ifstream file("Storage.txt");
+	ofstream temp("temp.txt");
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string productData;
+		getline(file, productData);
+		if (product == "") {
+			break;
+		}
+		int separatorIndex = productData.find('|');
+		string productName = productData.substr(0, separatorIndex);
+		double prodRemainingAmount = stod(productData.substr(separatorIndex + 1, (productData.length() - (separatorIndex + 1))));
+		if (productName == product) {
+			isFound = 1;
+			prodRemainingAmount += amount;
+			productData = productName + '|' + to_string(prodRemainingAmount);
+			temp << productData<<endl;
+			continue;
+		}
+			temp << productData<<endl;
+	}
+	if (isFound == 0) {
+		string newProductData = product + '|'+to_string(amount);
+		temp << newProductData<<endl;
+	}
+	file.close();
+	temp.close();
+	remove("Storage.txt");
+	int result = rename("temp.txt", "Storage.txt");
 }
 
 int main()
@@ -78,7 +109,7 @@ int main()
 	cout << "Select a role: ";
 	cin >> role;
 
-	while (role!="Manager" && role!="Waiter")
+	while (role != "Manager" && role != "Waiter")
 	{
 		std::cout << "This role was invalid! Please select another one (Waiter or Manager): ";
 		std::cin >> role;
@@ -96,20 +127,21 @@ int main()
 			std::cout << "What would you like to order?: " << std::endl;
 			string order;
 			std::cin >> order;
-			makeAnOrder(order);
+			//makeAnOrder(order);
 			break;
 		}
-		if (option == 7 && role=="Manager") {
+		if (option == 7 && role == "Manager") {
 
 		}
-		if (option == 8 && role=="Manager") {
-			char product[100]{};
+		if (option == 8 && role == "Manager") {
+			string product;
 			std::cout << "Please enter the name of the product: " << std::endl;
 			std::cin >> product;
 			int amount;
 			std::cout << "Please enter the amount: " << std::endl;
 			std::cin >> amount;
 			addProductToStorage(product, amount);
+			break;
 		}
 	}
 }
