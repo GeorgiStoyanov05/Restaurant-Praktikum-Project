@@ -1,7 +1,7 @@
 ﻿  Restaurant Project.cpp
 C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\Restaurant Project\Restaurant Project.cpp(60,22): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\Restaurant Project\Restaurant Project.cpp(84,22): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\Restaurant Project\Restaurant Project.cpp(117,22): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\Restaurant Project\Restaurant Project.cpp(140,1): warning C4715: 'deleteProductToStorage': not all control paths return a value
-C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\Restaurant Project\Restaurant Project.cpp(104,1): warning C4715: 'addProductToStorage': not all control paths return a value
+C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\Restaurant Project\Restaurant Project.cpp(97,22): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\Restaurant Project\Restaurant Project.cpp(131,22): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\Restaurant Project\Restaurant Project.cpp(162,26): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\Restaurant Project\Restaurant Project.cpp(167,1): warning C4715: 'showRemainingProducts': not all control paths return a value
   Restaurant Project.vcxproj -> C:\Users\georg\Desktop\Restaurant Project C++\Restaurant-Praktikum-Project\Restaurant Project\x64\Debug\Restaurant Project.exe

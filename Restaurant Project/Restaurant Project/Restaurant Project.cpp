@@ -66,7 +66,20 @@ static int printMenu() {
 }
 /*
 static int makeAnOrder(string order) {
+	ifstream file("Menu.txt");
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string dish;
+		getline(file, dish);
+		int separationNameIndex = dish.find('|');
+		int separationIngredientsIndex = dish.find('?');
+		int separationPriceIndex = dish.find('`');
+		string dishName = dish.substr(0, separationNameIndex);
+		double price = stod(dish.substr(separationNameIndex + 1, (separationPriceIndex - separationNameIndex)));
+		string ingredients=dish.substr(separationPriceIndex+1, (separationIngredientsIndex-separationPriceIndex-1));
+		string amounts=dish.substr(separationIngredientsIndex+1, (dish.length() - (separationIngredientsIndex+1)));
 
+	}
 }
 */
 
@@ -88,19 +101,20 @@ static int addProductToStorage(string product, int amount) {
 			isFound = 1;
 			prodRemainingAmount += amount;
 			productData = productName + '|' + to_string(prodRemainingAmount);
-			temp << productData<<endl;
+			temp << productData << endl;
 			continue;
 		}
-			temp << productData<<endl;
+		temp << productData << endl;
 	}
 	if (isFound == 0) {
-		string newProductData = product + '|'+to_string(amount);
-		temp << newProductData<<endl;
+		string newProductData = product + '|' + to_string(amount);
+		temp << newProductData << endl;
 	}
 	file.close();
 	temp.close();
 	remove("Storage.txt");
 	int result = rename("temp.txt", "Storage.txt");
+	return 1;
 }
 
 static int deleteProductToStorage(string product, int amount) {
@@ -121,9 +135,8 @@ static int deleteProductToStorage(string product, int amount) {
 			isFound = 1;
 			prodRemainingAmount -= amount;
 			if (prodRemainingAmount <= 0) {
-				cout << "Product removal has been successful";
 				continue;
-			} 
+			}
 			productData = productName + '|' + to_string(prodRemainingAmount);
 			temp << productData << endl;
 			continue;
@@ -131,12 +144,28 @@ static int deleteProductToStorage(string product, int amount) {
 		temp << productData << endl;
 	}
 	if (isFound == 0) {
-		cout << "There wasn't a product with that name in the Storage room!" << endl;
+		return 0;
 	}
 	file.close();
 	temp.close();
 	remove("Storage.txt");
 	int result = rename("temp.txt", "Storage.txt");
+	return 1;
+}
+
+static int showRemainingProducts() {
+	ifstream file("Storage.txt");
+	if (!file.is_open()) return 0;
+	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+	while (!file.eof()) {
+		string prodData;
+		getline(file, prodData);
+		int nameSeparatorIndex = prodData.find('|');
+		string name = prodData.substr(0, nameSeparatorIndex);
+		double amount = stod(prodData.substr(nameSeparatorIndex + 1, prodData.length() - 1));
+		cout << name << " -> " << amount << endl;
+	}
+	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 }
 
 int main()
@@ -173,7 +202,13 @@ int main()
 			int amount;
 			std::cout << "Please enter the amount: " << std::endl;
 			std::cin >> amount;
-			deleteProductToStorage(product, amount);
+			int result = deleteProductToStorage(product, amount);
+			if (result == 0) {
+				cout << "There was an error with removing the selected product!";
+			}
+			else {
+				cout << "Product has been removed successfully!" << endl;
+			}
 			break;
 		}
 		if (option == 8 && role == "Manager") {
@@ -183,8 +218,17 @@ int main()
 			int amount;
 			std::cout << "Please enter the amount: " << std::endl;
 			std::cin >> amount;
-			addProductToStorage(product, amount);
+			int result = addProductToStorage(product, amount);
+			if (result == 0) {
+				cout << "There was an error with adding the selected product!";
+			}
+			else {
+				cout << "Product has been added successfully!" << endl;
+			}
 			break;
+		}
+		if (option == 6 && role == "Manager") {
+			showRemainingProducts();
 		}
 	}
 }
