@@ -1,35 +1,11 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 
-static int getStringLenght(const char* str)
-{
-	int length = 0;
-	while (str[length] != '\0') {
-		length++;
-	}
-	return length;
-}
+using namespace std;
 
-static bool compareStrings(const char* str1, const char* str2) {
-	int strLenght1 = getStringLenght(str1);
-	int strLenght2 = getStringLenght(str2);
-	bool areEqual = 1;
-	if (strLenght1 != strLenght2) {
-		return 0;
-	}
-	else {
-		for (int i = 0; i < strLenght1; i++) {
-			if (str1[i] != str2[i])
-			{
-				areEqual = 0;
-			}
-		}
-	}
-	return areEqual;
-}
-
-static void displayUserOptions(const char* role) {
-	if (compareStrings(role, "Waiter"))
+static void displayUserOptions(string role) {
+	if (role=="Waiter")
 	{
 		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << "1) See the menu" << std::endl;
@@ -42,7 +18,7 @@ static void displayUserOptions(const char* role) {
 		std::cout << "8) Show all options again" << std::endl;
 		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	}
-	else if (compareStrings(role, "Manager"))
+	else if (role=="Manager")
 	{
 		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << "1) See the menu" << std::endl;
@@ -64,11 +40,11 @@ static void displayUserOptions(const char* role) {
 	}
 }
 
-static bool validateOption(int option, const char* role) {
-	if (compareStrings(role, "Manager") && (option < 1 || option>15)) {
+static bool validateOption(int option, string role) {
+	if (role!="Manager" && (option < 1 || option>15)) {
 		return 0;
 	}
-	else if (compareStrings(role, "Waiter") && (option < 1 || option>8)) {
+	else if (role!="Waiter" && (option < 1 || option>8)) {
 		return 0;
 	}
 	return 1;
@@ -79,23 +55,30 @@ static int printMenu() {
 	if (!MyFile.is_open()) return 0;
 	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	while (!MyFile.eof()) {
-		char dish[50];
-		MyFile.getline(dish, 50);
-		std::cout << dish<<std::endl;
+		string dish;
+		getline(MyFile, dish);
+		int separatorIndex = dish.find('|');
+		string dishName = dish.substr(0, separatorIndex - 1);
+		std::cout << dish << std::endl;
 	}
 	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	return 1;
 }
 
+static int makeAnOrder(string order) {
+	
+}
 
+static int addProductToStorage(const char* product, int amount) {
+}
 
 int main()
 {
-	char role[8];
-	std::cout << "Select a role: ";
-	std::cin >> role;
+	string role;
+	cout << "Select a role: ";
+	cin >> role;
 
-	while (compareStrings(role, "Manager") == 0 && compareStrings(role, "Waiter") == 0)
+	while (role!="Manager" && role!="Waiter")
 	{
 		std::cout << "This role was invalid! Please select another one (Waiter or Manager): ";
 		std::cin >> role;
@@ -109,11 +92,24 @@ int main()
 			printMenu();
 			break;
 		}
-	}
+		if (option == 2) {
+			std::cout << "What would you like to order?: " << std::endl;
+			string order;
+			std::cin >> order;
+			makeAnOrder(order);
+			break;
+		}
+		if (option == 7 && role=="Manager") {
 
-	struct Student {
-		char name[45];
-		int age;
-		int heigth;
-	};
+		}
+		if (option == 8 && role=="Manager") {
+			char product[100]{};
+			std::cout << "Please enter the name of the product: " << std::endl;
+			std::cin >> product;
+			int amount;
+			std::cout << "Please enter the amount: " << std::endl;
+			std::cin >> amount;
+			addProductToStorage(product, amount);
+		}
+	}
 }
