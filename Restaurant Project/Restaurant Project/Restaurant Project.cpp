@@ -78,7 +78,7 @@ static int addProductToStorage(string product, int amount) {
 	while (!file.eof()) {
 		string productData;
 		getline(file, productData);
-		if (product == "") {
+		if (productData == "") {
 			break;
 		}
 		int separatorIndex = productData.find('|');
@@ -96,6 +96,42 @@ static int addProductToStorage(string product, int amount) {
 	if (isFound == 0) {
 		string newProductData = product + '|'+to_string(amount);
 		temp << newProductData<<endl;
+	}
+	file.close();
+	temp.close();
+	remove("Storage.txt");
+	int result = rename("temp.txt", "Storage.txt");
+}
+
+static int deleteProductToStorage(string product, int amount) {
+	bool isFound = 0;
+	ifstream file("Storage.txt");
+	ofstream temp("temp.txt");
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string productData;
+		getline(file, productData);
+		if (productData == "") {
+			break;
+		}
+		int separatorIndex = productData.find('|');
+		string productName = productData.substr(0, separatorIndex);
+		double prodRemainingAmount = stod(productData.substr(separatorIndex + 1, (productData.length() - (separatorIndex + 1))));
+		if (productName == product) {
+			isFound = 1;
+			prodRemainingAmount -= amount;
+			if (prodRemainingAmount <= 0) {
+				cout << "Product removal has been successful";
+				continue;
+			} 
+			productData = productName + '|' + to_string(prodRemainingAmount);
+			temp << productData << endl;
+			continue;
+		}
+		temp << productData << endl;
+	}
+	if (isFound == 0) {
+		cout << "There wasn't a product with that name in the Storage room!" << endl;
 	}
 	file.close();
 	temp.close();
@@ -131,7 +167,14 @@ int main()
 			break;
 		}
 		if (option == 7 && role == "Manager") {
-
+			string product;
+			std::cout << "Please enter the name of the product: " << std::endl;
+			std::cin >> product;
+			int amount;
+			std::cout << "Please enter the amount: " << std::endl;
+			std::cin >> amount;
+			deleteProductToStorage(product, amount);
+			break;
 		}
 		if (option == 8 && role == "Manager") {
 			string product;
