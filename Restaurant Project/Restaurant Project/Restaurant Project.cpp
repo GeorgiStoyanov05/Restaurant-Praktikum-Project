@@ -41,10 +41,14 @@ static void displayUserOptions(string role) {
 }
 
 static bool validateOption(int option, string role) {
-	if (role != "Manager" && (option < 1 || option>15)) {
+	bool nz = role != "Manager";
+	if (role != "Manager" && role != "Waiter") {
 		return 0;
 	}
-	else if (role != "Waiter" && (option < 1 || option>8)) {
+	else if (role == "Waiter" && (option < 1 || option>8)) {
+		return 0;
+	}
+	else if (role == "Manager" && (option < 1 || option>15)) {
 		return 0;
 	}
 	return 1;
@@ -56,6 +60,9 @@ static int printMenu() {
 	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	while (!file.eof()) {
 		string dish;
+		if (dish == "") {
+			continue;
+		}
 		getline(file, dish);
 		int separatorIndex = dish.find('|');
 		string dishName = dish.substr(0, separatorIndex - 1);
@@ -92,7 +99,7 @@ static int addProductToStorage(string product, int amount) {
 		string productData;
 		getline(file, productData);
 		if (productData == "") {
-			break;
+			continue;
 		}
 		int separatorIndex = productData.find('|');
 		string productName = productData.substr(0, separatorIndex);
@@ -126,7 +133,7 @@ static int deleteProductToStorage(string product, int amount) {
 		string productData;
 		getline(file, productData);
 		if (productData == "") {
-			break;
+			continue;
 		}
 		int separatorIndex = productData.find('|');
 		string productName = productData.substr(0, separatorIndex);
@@ -159,6 +166,9 @@ static int showRemainingProducts() {
 	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	while (!file.eof()) {
 		string prodData;
+		if (prodData == "") {
+			continue;
+		}
 		getline(file, prodData);
 		int nameSeparatorIndex = prodData.find('|');
 		string name = prodData.substr(0, nameSeparatorIndex);
@@ -167,6 +177,22 @@ static int showRemainingProducts() {
 	}
 	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 }
+/*
+static int showTodaysTurnover() {
+	ifstream file("Turnovers.txt");
+	if (!file.is_open()) return 0;
+
+	while (!file.eof()) {
+		string turnover;
+		if (turnover == "") {
+			continue;
+		}
+		int separationIndex = turnover.find('|');
+		//string date = turnover.substr(0, separataionIndex+1);
+		double totalProfit = stod(turnover.substr(separationIndex + 1, turnover.length() - 1));
+	}
+}
+*/
 
 int main()
 {
@@ -229,6 +255,14 @@ int main()
 		}
 		if (option == 6 && role == "Manager") {
 			showRemainingProducts();
+		}
+		if (option == 9 && role == "Manager") {
+			//showTodaysTurnover();
+		}
+		if (option == 12 && role == "Manager") {
+		}
+		if ((option == 7 && role == "Waiter") || (option == 14 && role == "Manager")) {
+			displayUserOptions(role);
 		}
 	}
 }
