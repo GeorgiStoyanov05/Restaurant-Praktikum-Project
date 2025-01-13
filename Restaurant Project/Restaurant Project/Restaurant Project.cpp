@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 static int getStringLenght(const char* str)
 {
@@ -30,6 +31,7 @@ static bool compareStrings(const char* str1, const char* str2) {
 static void displayUserOptions(const char* role) {
 	if (compareStrings(role, "Waiter"))
 	{
+		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << "1) See the menu" << std::endl;
 		std::cout << "2) Order something from the menu" << std::endl;
 		std::cout << "3) Cancel an order" << std::endl;
@@ -38,9 +40,11 @@ static void displayUserOptions(const char* role) {
 		std::cout << "6) See today's turnover" << std::endl;
 		std::cout << "7) End your shift" << std::endl;
 		std::cout << "8) Show all options again" << std::endl;
+		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	}
 	else if (compareStrings(role, "Manager"))
 	{
+		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << "1) See the menu" << std::endl;
 		std::cout << "2) Order something from the menu" << std::endl;
 		std::cout << "3) Cancel an order" << std::endl;
@@ -56,6 +60,7 @@ static void displayUserOptions(const char* role) {
 		std::cout << "13) Remove a dish from the menu" << std::endl;
 		std::cout << "14) End your day" << std::endl;
 		std::cout << "15) Show all options again" << std::endl;
+		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	}
 }
 
@@ -68,6 +73,21 @@ static bool validateOption(int option, const char* role) {
 	}
 	return 1;
 }
+
+static int printMenu() {
+	std::ifstream MyFile("Menu.txt");
+	if (!MyFile.is_open()) return 0;
+	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+	while (!MyFile.eof()) {
+		char dish[50];
+		MyFile.getline(dish, 50);
+		std::cout << dish<<std::endl;
+	}
+	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+	return 1;
+}
+
+
 
 int main()
 {
@@ -85,8 +105,10 @@ int main()
 	int option;
 	std::cin >> option;
 	while (validateOption(option, role)) {
-		std::cout << option<<std::endl;
-		std::cin >> option;
+		if (option == 1) {
+			printMenu();
+			break;
+		}
 	}
 
 	struct Student {
