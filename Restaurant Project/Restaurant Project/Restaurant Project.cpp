@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -192,7 +193,10 @@ static int showAllPreviousOrders() {
 	}
 	cout << "" << endl;
 }
+
 static int showSortedOrders() {
+	vector<string> dishes;
+	vector<int> numOfOrders;
 	ifstream file("Orders.txt");
 	if (!file.is_open()) return 0;
 	cout << "" << endl;
@@ -202,9 +206,38 @@ static int showSortedOrders() {
 		if (dish == "") {
 			continue;
 		}
-		cout << dish << endl;
+		bool isAlreadyAdded = false;
+		for (int i = 0; i < dishes.size(); i++) {
+			if (dishes[i] == dish) {
+				isAlreadyAdded = true;
+				numOfOrders[i]++;
+				break;
+			}
+		}
+		if (isAlreadyAdded == false) {
+			dishes.push_back(dish);
+			numOfOrders.push_back(1);
+		}
 	}
-	cout << "" << endl;
+	for (int i = 0; i < dishes.size() - 1; ++i) {
+		for (int j = 0; j < dishes.size() - i - 1; ++j) {
+			if (dishes[j] > dishes[j + 1]) {
+				// Swap dishes[j] and dishes[j + 1]
+				string temp = dishes[j];
+				dishes[j] = dishes[j + 1];
+				dishes[j + 1] = temp;
+
+				int tempForNum = numOfOrders[i];
+				numOfOrders[i] = numOfOrders[i + 1];
+				numOfOrders[i + 1] = tempForNum;
+			}
+		}
+	}
+
+	for (int i = 0; i < dishes.size(); i++) {
+		cout << dishes[i] << " -> " << numOfOrders[i]<<endl;
+	}
+	return 1;
 }
 /*
 static int showTodaysTurnover() {
@@ -250,12 +283,23 @@ int main()
 			//makeAnOrder(order);
 			break;
 		}
+		if (option == 3) {
+			//TODO...
+			break;
+		}
 		if (option == 4) {
 			showAllPreviousOrders();
 			break;
 		}
 		if (option == 5) {
 			showSortedOrders();
+			break;
+		}
+		if (option == 6 && role == "Waiter") {
+			//TODO...
+		}
+		if (option == 6 && role == "Manager") {
+			showRemainingProducts();
 		}
 		if (option == 7 && role == "Manager") {
 			string product;
@@ -289,13 +333,11 @@ int main()
 			}
 			break;
 		}
-		if (option == 6 && role == "Manager") {
-			showRemainingProducts();
-		}
 		if (option == 9 && role == "Manager") {
 			//showTodaysTurnover();
 		}
 		if (option == 12 && role == "Manager") {
+			//TODO...
 		}
 		if ((option == 7 && role == "Waiter") || (option == 14 && role == "Manager")) {
 			displayUserOptions(role);
