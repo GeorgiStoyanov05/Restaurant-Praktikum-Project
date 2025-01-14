@@ -5,7 +5,7 @@
 
 using namespace std;
 
-double dailyTurnover = 0.00;
+double dailyTurnover = 200;
 
 bool isLeapYear(int year) {
 	return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
@@ -40,6 +40,40 @@ void incrementDate(int& day, int& month, int& year) {
 			year++;
 		}
 	}
+}
+
+static int addProductToStorage(string product, int amount) {
+	bool isFound = 0;
+	ifstream file("Storage.txt");
+	ofstream temp("temp.txt");
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string productData;
+		getline(file, productData);
+		if (productData == "") {
+			continue;
+		}
+		int separatorIndex = productData.find('|');
+		string productName = productData.substr(0, separatorIndex);
+		double prodRemainingAmount = stod(productData.substr(separatorIndex + 1, (productData.length() - (separatorIndex + 1))));
+		if (productName == product) {
+			isFound = 1;
+			prodRemainingAmount += amount;
+			productData = productName + '|' + to_string(prodRemainingAmount);
+			temp << productData << endl;
+			continue;
+		}
+		temp << productData << endl;
+	}
+	if (isFound == 0) {
+		string newProductData = product + '|' + to_string(amount);
+		temp << newProductData << endl;
+	}
+	file.close();
+	temp.close();
+	remove("Storage.txt");
+	int result = rename("temp.txt", "Storage.txt");
+	return 1;
 }
 
 static vector<string> splitStringToStrArr(string str, char separator) {
@@ -107,13 +141,21 @@ static int deleteProductFromStorage(string product, int amount, bool isForOrder)
 }
 
 static int reduceProductsAmounts(vector<string>products, vector<int> amounts) {
-	//deleteProductFromStorage
 	for (int i = 0; i < products.size(); i++) {
 		if (deleteProductFromStorage(products[i], amounts[i], 1) == 0) {
 			return 0;
 		}
 	}
-		return 1;
+	return 1;
+}
+
+static int increaseProductsAmounts(vector<string>products, vector<int> amounts) {
+	for (int i = 0; i < products.size(); i++) {
+		if (addProductToStorage(products[i], amounts[i]) == 0) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 static int checkIfDishExists(string name) {
@@ -247,40 +289,6 @@ static int makeAnOrder(string order) {
 		}
 	}
 	return 0;
-}
-
-static int addProductToStorage(string product, int amount) {
-	bool isFound = 0;
-	ifstream file("Storage.txt");
-	ofstream temp("temp.txt");
-	if (!file.is_open()) return 0;
-	while (!file.eof()) {
-		string productData;
-		getline(file, productData);
-		if (productData == "") {
-			continue;
-		}
-		int separatorIndex = productData.find('|');
-		string productName = productData.substr(0, separatorIndex);
-		double prodRemainingAmount = stod(productData.substr(separatorIndex + 1, (productData.length() - (separatorIndex + 1))));
-		if (productName == product) {
-			isFound = 1;
-			prodRemainingAmount += amount;
-			productData = productName + '|' + to_string(prodRemainingAmount);
-			temp << productData << endl;
-			continue;
-		}
-		temp << productData << endl;
-	}
-	if (isFound == 0) {
-		string newProductData = product + '|' + to_string(amount);
-		temp << newProductData << endl;
-	}
-	file.close();
-	temp.close();
-	remove("Storage.txt");
-	int result = rename("temp.txt", "Storage.txt");
-	return 1;
 }
 
 static int showRemainingProducts() {
@@ -456,6 +464,66 @@ static int deleteDish(string name) {
 	return 1;
 }
 
+static int deleteOrder(string name) {
+	ifstream file("Menu.txt");
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string dish;
+		getline(file, dish);
+		int separationNameIndex = dish.find('|');
+		int separationIngredientsIndex = dish.find('?');
+		int separationPriceIndex = dish.find('`');
+		string dishName = dish.substr(0, separationNameIndex);
+		if (dishName == name) {
+			double price = stod(dish.substr(separationNameIndex + 1, (separationPriceIndex - separationNameIndex)));
+			string ingredients = dish.substr(separationPriceIndex + 1, (separationIngredientsIndex - separationPriceIndex - 1));
+			string amounts = dish.substr(separationIngredientsIndex + 1, (dish.length() - (separationIngredientsIndex + 1)));
+			vector<string> ingredientsArr;
+			vector<string> amountsStrArr;
+			vector<int> amountsArr;
+			ingredientsArr = splitStringToStrArr(ingredients, ',');
+			amountsStrArr = splitStringToStrArr(amounts, ',');
+			for (int i = 0; i < amountsStrArr.size(); i++) {
+				amountsArr.push_back(stoi(amountsStrArr[i]));
+			}
+			increaseProductsAmounts(ingredientsArr, amountsArr);
+			bool isFound = 0;
+			ifstream oldOrdersFile("Orders.txt");
+			ofstream newOrdersFile("temp.txt");
+			while (!oldOrdersFile.eof()) {
+				string order;
+				getline(oldOrdersFile, order);
+				if (order == dishName && isFound==0) {
+					isFound = 1;
+					continue;
+				}
+				newOrdersFile << order << endl;
+			}
+			dailyTurnover -= price;
+			oldOrdersFile.close();
+			newOrdersFile.close();
+			remove("Orders.txt");
+			int result = rename("temp.txt", "Orders.txt");
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static int checkIfOrderExists(string name) {
+	fstream file("Orders.txt", ios::in | ios::out);
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string orderName;
+		getline(file, orderName);
+		if (orderName == name) {
+			return 1;
+		}
+	}
+	file.close();
+	return 0;
+}
+
 int main()
 {
 	string role;
@@ -477,7 +545,7 @@ int main()
 			break;
 		}
 		if (option == 2) {
-			cout << "What would you like to order?: " << endl;
+			cout << "What would you like to order(instead of ' ' use '_')?: " << endl;
 			string order;
 			cin >> order;
 			if (!checkIfDishExists(order)) {
@@ -491,7 +559,16 @@ int main()
 			break;
 		}
 		if (option == 3) {
-			//TODO...
+			cout << "What dish would you like to cancel(instead of ' ' use '_')?: " << endl;
+			string dishName;
+			cin >> dishName;
+			if (checkIfOrderExists(dishName) == 0) {
+				cout << "There is no such order!" << endl;
+			}
+			else {
+				deleteOrder(dishName);
+				cout << "The order has been cancelled successfully!" << endl;
+			}
 			break;
 		}
 		if (option == 4) {

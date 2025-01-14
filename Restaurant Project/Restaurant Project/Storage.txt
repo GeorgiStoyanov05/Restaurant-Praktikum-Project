@@ -1,5 +1,5 @@
 dildos|15.000000
 potatoes|20
 dildos2|200
-Cucumbers|9800.000000
-Yoghurt|19700.000000
+Cucumbers|10600.000000
+Yoghurt|20100.000000
