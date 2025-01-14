@@ -5,9 +5,23 @@
 
 using namespace std;
 
-double dailyTurnover = 200;
+double dailyTurnover;
 
-bool isLeapYear(int year) {
+static double insertDailyTurnoverOnStart() {
+	double turnover=0.00;
+	fstream file("Turnovers.txt");
+	if (!file.is_open())return 0;
+	while (!file.eof()) {
+		string data;
+		getline(file, data);
+		if (data == "") continue;
+		int separatorIndex = data.find('|');
+		turnover = stod(data.substr(separatorIndex + 1, data.length() - separatorIndex));
+	}
+	return turnover;
+}
+
+static bool isLeapYear(int year) {
 	return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
@@ -24,7 +38,7 @@ int getDaysInMonth(int month, int year) {
 	}
 }
 
-void incrementDate(int& day, int& month, int& year) {
+static void incrementDate(int& day, int& month, int& year) {
 	int daysInMonth = getDaysInMonth(month, year);
 
 	if (day < daysInMonth) {
@@ -40,6 +54,80 @@ void incrementDate(int& day, int& month, int& year) {
 			year++;
 		}
 	}
+}
+
+static vector<string> splitStringToStrArr(string str, char separator) {
+	vector<string>result;
+	int indexOfSeparator = str.find_last_of(separator);
+	if (indexOfSeparator == -1) {
+		result.push_back(str);
+	}
+	else {
+		while (str.size() != 0) {
+			string strSub = str.substr(indexOfSeparator + 1, str.length() - indexOfSeparator);
+			result.push_back(strSub);
+			if (indexOfSeparator == -1) {
+				str.erase(strSub.length());
+				break;
+			}
+			else {
+				str.erase(indexOfSeparator);
+			}
+			indexOfSeparator = str.find(separator);
+		}
+	}
+	return result;
+}
+
+static double showTodaysTurnover() {
+	ifstream file("Turnovers.txt");
+	string turnover;
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string check;
+		getline(file, check);
+		if (check == "") continue;
+		turnover = check;
+	}
+	file.close();
+	int separatorIndex = turnover.find('|');
+	double todaysTurnover = stod(turnover.substr(separatorIndex+1, (turnover.length()-separatorIndex)));
+	return todaysTurnover;
+}
+
+static int finishTurnoverForToday() {
+	fstream file("Turnovers.txt");
+	vector<string> turnovers;
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string check;
+		getline(file, check);
+		if (check == "") continue;
+		turnovers.push_back(check);
+	}
+	file.close();
+	string todaysDate = turnovers[turnovers.size() - 1].substr(0, 8);
+	double todaysTurnOverAmount = stod(turnovers[turnovers.size() - 1].substr(11, turnovers[turnovers.size() - 1].length() - 8));
+	string todaysData = todaysDate + "|" + to_string(dailyTurnover);
+	turnovers[turnovers.size() - 1] = todaysData;
+	vector<string> dateComponents = splitStringToStrArr(todaysDate, '.');
+	vector<int>dateComponentsAsInt;
+	for (int i = dateComponents.size() - 1; i >= 0; i--) {
+		dateComponentsAsInt.push_back(stoi(dateComponents[i]));
+	}
+	incrementDate(dateComponentsAsInt[0], dateComponentsAsInt[1], dateComponentsAsInt[2]);
+	string tomorrowsData = to_string(dateComponentsAsInt[0]) + '.' + to_string(dateComponentsAsInt[1]) + '.' + to_string(dateComponentsAsInt[2]);
+	tomorrowsData += "|0.00";
+	turnovers.push_back(tomorrowsData);
+	ofstream newFile("temp.txt");
+	if (!newFile.is_open()) return 0;
+	for (int i = 0; i < turnovers.size(); i++) {
+		newFile << turnovers[i]<<endl;
+	}
+	newFile.close();
+	dailyTurnover = 0.00;
+	remove("Turnovers.txt");
+	int result = rename("temp.txt", "Turnovers.txt");
 }
 
 static int addProductToStorage(string product, int amount) {
@@ -74,29 +162,6 @@ static int addProductToStorage(string product, int amount) {
 	remove("Storage.txt");
 	int result = rename("temp.txt", "Storage.txt");
 	return 1;
-}
-
-static vector<string> splitStringToStrArr(string str, char separator) {
-	vector<string>result;
-	int indexOfSeparator = str.find(separator);
-	if (indexOfSeparator == -1) {
-		result.push_back(str);
-	}
-	else {
-		while (str.size() != 0) {
-			string strSub = str.substr(indexOfSeparator + 1, str.length() - indexOfSeparator);
-			result.push_back(strSub);
-			if (indexOfSeparator == -1) {
-				str.erase(strSub.length());
-				break;
-			}
-			else {
-				str.erase(indexOfSeparator);
-			}
-			indexOfSeparator = str.find(separator);
-		}
-	}
-	return result;
 }
 
 static int deleteProductFromStorage(string product, int amount, bool isForOrder) {
@@ -173,10 +238,10 @@ static int checkIfDishExists(string name) {
 	return 0;
 }
 
-string increaseDayByOne(string date) {
+static string increaseDayByOne(string date) {
 	int month = stoi(date.substr(0, 2));
 	int day = stoi(date.substr(3, 2));
-	int year = stoi(date.substr(6, 2));
+	int year = stoi(date.substr(6, 4));
 	incrementDate(day, month, year);
 	string incrementedDate = to_string(month) + '/' + to_string(day) + '/' + to_string(year);
 	return incrementedDate;
@@ -369,56 +434,6 @@ static int showSortedOrders() {
 	}
 	return 1;
 }
-/*
-static int showTodaysTurnover() {
-	ifstream file("Turnovers.txt");
-	if (!file.is_open()) return 0;
-
-	while (!file.eof()) {
-		string turnover;
-		if (turnover == "") {
-			continue;
-		}
-		int separationIndex = turnover.find('|');
-		//string date = turnover.substr(0, separataionIndex+1);
-		double totalProfit = stod(turnover.substr(separationIndex + 1, turnover.length() - 1));
-	}
-}
-
-static int finishTurnoverForToday() {
-	ifstream file("Turnovers.txt");
-	int fileLinesCounts = 0;
-	if (!file.is_open()) return 0;
-	while (!file.eof()) {
-		string temp;
-		getline(file, temp);
-		if (temp == "") continue;
-		fileLinesCounts++;
-	}
-	string date;
-	if (fileLinesCounts == 0) {
-		file.close();
-		time_t timestamp = time(NULL);
-		struct tm datetime = *localtime(&timestamp);
-		char output[50];
-
-		strftime(output, 50, "%m/%d/%y", &datetime);
-		date = output;
-		date = increaseDayByOne(date) + "|0.00";
-		return 1;
-	}
-	file.ignore(fileLinesCounts - 1);
-	getline(file, date);
-	file.close();
-	date = date.substr(0, 8);
-	date = increaseDayByOne(date)+"|0.00";
-	ofstream writeFile("Turnovers.txt");
-	writeFile.seekp(fileLinesCounts);
-	writeFile << date<<endl;
-	writeFile.close();
-	return 1;
-}
-*/
 
 static int createDish(string name, int price, vector<string> ingredients, vector<int>amounts) {
 	string finalDish = name + '|' + to_string(price) + '`';
@@ -493,7 +508,7 @@ static int deleteOrder(string name) {
 			while (!oldOrdersFile.eof()) {
 				string order;
 				getline(oldOrdersFile, order);
-				if (order == dishName && isFound==0) {
+				if (order == dishName && isFound == 0) {
 					isFound = 1;
 					continue;
 				}
@@ -526,6 +541,7 @@ static int checkIfOrderExists(string name) {
 
 int main()
 {
+	dailyTurnover = insertDailyTurnoverOnStart();
 	string role;
 	cout << "Select a role: ";
 	cin >> role;
@@ -579,8 +595,10 @@ int main()
 			showSortedOrders();
 			break;
 		}
-		if (option == 6 && role == "Waiter") {
-			//TODO...
+		if ((option == 6 && role == "Waiter") || (option == 9 && role == "Manager")) {
+			double turnOver = showTodaysTurnover();
+			cout << "Today's turnover is: " << turnOver<<"lv." << endl;
+			break;
 		}
 		if (option == 6 && role == "Manager") {
 			showRemainingProducts();
@@ -617,11 +635,8 @@ int main()
 			}
 			break;
 		}
-		if (option == 9 && role == "Manager") {
-			//showTodaysTurnover();
-		}
 		if (option == 10 && role == "Manager") {
-			//finishTurnoverForToday();
+			finishTurnoverForToday();
 		}
 		if (option == 12 && role == "Manager") {
 			string name;
