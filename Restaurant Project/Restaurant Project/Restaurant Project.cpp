@@ -5,6 +5,65 @@
 
 using namespace std;
 
+bool isLeapYear(int year) {
+	return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+int getDaysInMonth(int month, int year) {
+	switch (month) {
+	case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+		return 31;
+	case 4: case 6: case 9: case 11:
+		return 30;
+	case 2:
+		return isLeapYear(year) ? 29 : 28;
+	default:
+		return 0;
+	}
+}
+
+void incrementDate(int& day, int& month, int& year) {
+	int daysInMonth = getDaysInMonth(month, year);
+
+	if (day < daysInMonth) {
+		day++;
+	}
+	else {
+		day = 1;
+		if (month < 12) {
+			month++;
+		}
+		else {
+			month = 1;
+			year++;
+		}
+	}
+}
+
+static int checkIfDishExists(string name) {
+	ifstream file("Menu.txt");
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string dish;
+		getline(file, dish);
+		int separatorIndex = dish.find('|');
+		dish = dish.substr(0, separatorIndex);
+		if (dish == name) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+string increaseDayByOne(string date) {
+	int month = stoi(date.substr(0, 2));
+	int day = stoi(date.substr(3, 2));
+	int year = stoi(date.substr(6, 2));
+	incrementDate(day, month, year);
+	string incrementedDate = to_string(month) + '/' + to_string(day) + '/' + to_string(year);
+	return incrementedDate;
+}
+
 static void displayUserOptions(string role) {
 	if (role == "Waiter")
 	{
@@ -235,7 +294,7 @@ static int showSortedOrders() {
 	}
 
 	for (int i = 0; i < dishes.size(); i++) {
-		cout << dishes[i] << " -> " << numOfOrders[i]<<endl;
+		cout << dishes[i] << " -> " << numOfOrders[i] << endl;
 	}
 	return 1;
 }
@@ -254,8 +313,63 @@ static int showTodaysTurnover() {
 		double totalProfit = stod(turnover.substr(separationIndex + 1, turnover.length() - 1));
 	}
 }
+
+static int finishTurnoverForToday() {
+	ifstream file("Turnovers.txt");
+	int fileLinesCounts = 0;
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string temp;
+		getline(file, temp);
+		if (temp == "") continue;
+		fileLinesCounts++;
+	}
+	string date;
+	if (fileLinesCounts == 0) {
+		file.close();
+		time_t timestamp = time(NULL);
+		struct tm datetime = *localtime(&timestamp);
+		char output[50];
+
+		strftime(output, 50, "%m/%d/%y", &datetime);
+		date = output;
+		date = increaseDayByOne(date) + "|0.00";
+		return 1;
+	}
+	file.ignore(fileLinesCounts - 1);
+	getline(file, date);
+	file.close();
+	date = date.substr(0, 8);
+	date = increaseDayByOne(date)+"|0.00";
+	ofstream writeFile("Turnovers.txt");
+	writeFile.seekp(fileLinesCounts);
+	writeFile << date<<endl;
+	writeFile.close();
+	return 1;
+}
 */
 
+static int createDish(string name, int price, vector<string> ingredients, vector<int>amounts) {
+	string finalDish = name + '|' + to_string(price) + '`';
+	for (int i = 0; i < ingredients.size(); i++) {
+		finalDish += (ingredients[i] + ',');
+	}
+	finalDish[finalDish.length() - 1] = '?';
+	for (int i = 0; i < amounts.size(); i++) {
+		finalDish += (to_string(amounts[i]) + ' ');
+	}
+	finalDish = finalDish.erase(finalDish.length() - 1);
+	fstream file("Menu.txt", ios::in | ios::out);
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string temp;
+		getline(file, temp);
+	}
+	file.clear();
+	file << finalDish<<endl;
+	file.close();
+	return 1;
+}
 int main()
 {
 	string role;
@@ -336,8 +450,45 @@ int main()
 		if (option == 9 && role == "Manager") {
 			//showTodaysTurnover();
 		}
+		if (option == 10 && role == "Manager") {
+			//finishTurnoverForToday();
+		}
 		if (option == 12 && role == "Manager") {
-			//TODO...
+			string name;
+			double price;
+			vector<string> ingredients;
+			vector<int> amounts;
+			cout << "Enter dish's name(use '_' instead of ' '): " << endl;
+			cin >> name;
+			int indexOfSpace = name.find('_');
+			if (indexOfSpace != -1) {
+				name[indexOfSpace] = ' ';
+			}
+			while (checkIfDishExists(name)) {
+				cout << "Dish with that name already exists! Enter a new dish: " << endl;
+				cin >> name;
+				int indexOfSpace = name.find('_');
+				if (indexOfSpace != -1) {
+					name[indexOfSpace] = ' ';
+				}
+			}
+			cout << "How much will that dish cost: " << endl;
+			cin >> price;
+			cout << "How many ingredients will this dish have?" << endl;
+			int ingredientsCount;
+			cin >> ingredientsCount;
+			for (int i = 0; i < ingredientsCount; i++) {
+				string ingredient;
+				int amount;
+				cout << "Enter ingredient " << i+1 << endl;
+				cin >> ingredient;
+				cout << "How much " << ingredient << " would you need"<<endl;
+				cin >> amount;
+				ingredients.push_back(ingredient);
+				amounts.push_back(amount);
+			}
+			createDish(name, price, ingredients, amounts);
+			break;
 		}
 		if ((option == 7 && role == "Waiter") || (option == 14 && role == "Manager")) {
 			displayUserOptions(role);
