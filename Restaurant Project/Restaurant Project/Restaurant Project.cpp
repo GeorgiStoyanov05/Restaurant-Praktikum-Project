@@ -5,6 +5,8 @@
 
 using namespace std;
 
+double dailyTurnover = 0.00;
+
 bool isLeapYear(int year) {
 	return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
@@ -38,6 +40,80 @@ void incrementDate(int& day, int& month, int& year) {
 			year++;
 		}
 	}
+}
+
+static vector<string> splitStringToStrArr(string str, char separator) {
+	vector<string>result;
+	int indexOfSeparator = str.find(separator);
+	if (indexOfSeparator == -1) {
+		result.push_back(str);
+	}
+	else {
+		while (str.size() != 0) {
+			string strSub = str.substr(indexOfSeparator + 1, str.length() - indexOfSeparator);
+			result.push_back(strSub);
+			if (indexOfSeparator == -1) {
+				str.erase(strSub.length());
+				break;
+			}
+			else {
+				str.erase(indexOfSeparator);
+			}
+			indexOfSeparator = str.find(separator);
+		}
+	}
+	return result;
+}
+
+static int deleteProductFromStorage(string product, int amount, bool isForOrder) {
+	bool isFound = 0;
+	ifstream file("Storage.txt");
+	ofstream temp("temp.txt");
+	if (!file.is_open()) return 0;
+	while (!file.eof()) {
+		string productData;
+		getline(file, productData);
+		if (productData == "") {
+			continue;
+		}
+		int separatorIndex = productData.find('|');
+		string productName = productData.substr(0, separatorIndex);
+		double prodRemainingAmount = stod(productData.substr(separatorIndex + 1, (productData.length() - (separatorIndex + 1))));
+		if (productName == product) {
+			isFound = 1;
+			if (prodRemainingAmount - amount <= 0 && isForOrder == 0) {
+				prodRemainingAmount = 0;
+			}
+			if (prodRemainingAmount - amount <= 0 && isForOrder == 1) {
+				return 0;
+			}
+			if (prodRemainingAmount - amount > 0) {
+				prodRemainingAmount -= amount;
+			}
+			productData = productName + '|' + to_string(prodRemainingAmount);
+			temp << productData << endl;
+			continue;
+		}
+		temp << productData << endl;
+	}
+	if (isFound == 0) {
+		return 0;
+	}
+	file.close();
+	temp.close();
+	remove("Storage.txt");
+	int result = rename("temp.txt", "Storage.txt");
+	return 1;
+}
+
+static int reduceProductsAmounts(vector<string>products, vector<int> amounts) {
+	//deleteProductFromStorage
+	for (int i = 0; i < products.size(); i++) {
+		if (deleteProductFromStorage(products[i], amounts[i], 1) == 0) {
+			return 0;
+		}
+	}
+		return 1;
 }
 
 static int checkIfDishExists(string name) {
@@ -131,7 +207,7 @@ static int printMenu() {
 	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 	return 1;
 }
-/*
+
 static int makeAnOrder(string order) {
 	ifstream file("Menu.txt");
 	if (!file.is_open()) return 0;
@@ -142,13 +218,36 @@ static int makeAnOrder(string order) {
 		int separationIngredientsIndex = dish.find('?');
 		int separationPriceIndex = dish.find('`');
 		string dishName = dish.substr(0, separationNameIndex);
-		double price = stod(dish.substr(separationNameIndex + 1, (separationPriceIndex - separationNameIndex)));
-		string ingredients=dish.substr(separationPriceIndex+1, (separationIngredientsIndex-separationPriceIndex-1));
-		string amounts=dish.substr(separationIngredientsIndex+1, (dish.length() - (separationIngredientsIndex+1)));
-
+		if (dishName == order) {
+			double price = stod(dish.substr(separationNameIndex + 1, (separationPriceIndex - separationNameIndex)));
+			string ingredients = dish.substr(separationPriceIndex + 1, (separationIngredientsIndex - separationPriceIndex - 1));
+			string amounts = dish.substr(separationIngredientsIndex + 1, (dish.length() - (separationIngredientsIndex + 1)));
+			vector<string> ingredientsArr;
+			vector<string> amountsStrArr;
+			vector<int> amountsArr;
+			ingredientsArr = splitStringToStrArr(ingredients, ',');
+			amountsStrArr = splitStringToStrArr(amounts, ',');
+			for (int i = 0; i < amountsStrArr.size(); i++) {
+				amountsArr.push_back(stoi(amountsStrArr[i]));
+			}
+			if (reduceProductsAmounts(ingredientsArr, amountsArr) == 0) {
+				cout << "This dish can not be prepared at the moment";
+				return 0;
+			}
+			fstream ordersFile("Orders.txt", ios::in | ios::out);
+			while (!ordersFile.eof()) {
+				string temp;
+				getline(ordersFile, temp);
+			}
+			ordersFile.clear();
+			dailyTurnover += price;
+			ordersFile << dishName << endl;
+			ordersFile.close();
+			return 1;
+		}
 	}
+	return 0;
 }
-*/
 
 static int addProductToStorage(string product, int amount) {
 	bool isFound = 0;
@@ -176,42 +275,6 @@ static int addProductToStorage(string product, int amount) {
 	if (isFound == 0) {
 		string newProductData = product + '|' + to_string(amount);
 		temp << newProductData << endl;
-	}
-	file.close();
-	temp.close();
-	remove("Storage.txt");
-	int result = rename("temp.txt", "Storage.txt");
-	return 1;
-}
-
-static int deleteProductToStorage(string product, int amount) {
-	bool isFound = 0;
-	ifstream file("Storage.txt");
-	ofstream temp("temp.txt");
-	if (!file.is_open()) return 0;
-	while (!file.eof()) {
-		string productData;
-		getline(file, productData);
-		if (productData == "") {
-			continue;
-		}
-		int separatorIndex = productData.find('|');
-		string productName = productData.substr(0, separatorIndex);
-		double prodRemainingAmount = stod(productData.substr(separatorIndex + 1, (productData.length() - (separatorIndex + 1))));
-		if (productName == product) {
-			isFound = 1;
-			prodRemainingAmount -= amount;
-			if (prodRemainingAmount <= 0) {
-				continue;
-			}
-			productData = productName + '|' + to_string(prodRemainingAmount);
-			temp << productData << endl;
-			continue;
-		}
-		temp << productData << endl;
-	}
-	if (isFound == 0) {
-		return 0;
 	}
 	file.close();
 	temp.close();
@@ -356,7 +419,7 @@ static int createDish(string name, int price, vector<string> ingredients, vector
 	}
 	finalDish[finalDish.length() - 1] = '?';
 	for (int i = 0; i < amounts.size(); i++) {
-		finalDish += (to_string(amounts[i]) + ' ');
+		finalDish += (to_string(amounts[i]) + ',');
 	}
 	finalDish = finalDish.erase(finalDish.length() - 1);
 	fstream file("Menu.txt", ios::in | ios::out);
@@ -414,10 +477,17 @@ int main()
 			break;
 		}
 		if (option == 2) {
-			std::cout << "What would you like to order?: " << std::endl;
+			cout << "What would you like to order?: " << endl;
 			string order;
-			std::cin >> order;
-			//makeAnOrder(order);
+			cin >> order;
+			if (!checkIfDishExists(order)) {
+				cout << "There is no such dish on your menu!" << endl;
+			}
+			else {
+				if (makeAnOrder(order) == 1) {
+					cout << "Your order has been successful!" << endl;
+				}
+			}
 			break;
 		}
 		if (option == 3) {
@@ -445,7 +515,7 @@ int main()
 			int amount;
 			std::cout << "Please enter the amount: " << std::endl;
 			std::cin >> amount;
-			int result = deleteProductToStorage(product, amount);
+			int result = deleteProductFromStorage(product, amount, 0);
 			if (result == 0) {
 				cout << "There was an error with removing the selected product!";
 			}
