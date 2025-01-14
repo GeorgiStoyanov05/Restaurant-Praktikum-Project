@@ -366,10 +366,33 @@ static int createDish(string name, int price, vector<string> ingredients, vector
 		getline(file, temp);
 	}
 	file.clear();
-	file << finalDish<<endl;
+	file << finalDish << endl;
 	file.close();
 	return 1;
 }
+
+static int deleteDish(string name) {
+	fstream oldFile("Menu.txt");
+	ofstream newFile("temp.txt");
+	while (!oldFile.is_open()) return 0;
+	while (!oldFile.eof()) {
+		string dish;
+		getline(oldFile, dish);
+		if (dish == "") continue;
+		int dishNameSeparatorIndex = dish.find('|');
+		string dishName = dish.substr(0, dishNameSeparatorIndex);
+		if (dishName == name) {
+			continue;
+		}
+		newFile << dish;
+	}
+	oldFile.close();
+	newFile.close();
+	remove("Menu.txt");
+	int result = rename("temp.txt", "Menu.txt");
+	return 1;
+}
+
 int main()
 {
 	string role;
@@ -458,7 +481,7 @@ int main()
 			double price;
 			vector<string> ingredients;
 			vector<int> amounts;
-			cout << "Enter dish's name(use '_' instead of ' '): " << endl;
+			cout << "Enter the dish's name(use '_' instead of ' '): " << endl;
 			cin >> name;
 			int indexOfSpace = name.find('_');
 			if (indexOfSpace != -1) {
@@ -480,14 +503,30 @@ int main()
 			for (int i = 0; i < ingredientsCount; i++) {
 				string ingredient;
 				int amount;
-				cout << "Enter ingredient " << i+1 << endl;
+				cout << "Enter ingredient " << i + 1 << endl;
 				cin >> ingredient;
-				cout << "How much " << ingredient << " would you need"<<endl;
+				cout << "How much " << ingredient << " would you need" << endl;
 				cin >> amount;
 				ingredients.push_back(ingredient);
 				amounts.push_back(amount);
 			}
 			createDish(name, price, ingredients, amounts);
+			break;
+		}
+		if (option == 13 && role == "Manager") {
+			string name;
+			cout << "Enter the dish's name(use '_' instead of ' '): " << endl;
+			cin >> name;
+			int indexOfSpace = name.find('_');
+			if (indexOfSpace != -1) {
+				name[indexOfSpace] = ' ';
+			}
+			if (!checkIfDishExists(name)) {
+				cout << "There is no dish with that name on the menu!" << endl;
+			}
+			else {
+				deleteDish(name);
+			}
 			break;
 		}
 		if ((option == 7 && role == "Waiter") || (option == 14 && role == "Manager")) {
