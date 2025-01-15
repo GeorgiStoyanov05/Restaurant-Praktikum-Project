@@ -273,36 +273,36 @@ static string increaseDayByOne(string date) {
 static void displayUserOptions(string role) {
 	if (role == "Waiter")
 	{
-		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
-		std::cout << "1) See the menu" << std::endl;
-		std::cout << "2) Order something from the menu" << std::endl;
-		std::cout << "3) Cancel an order" << std::endl;
-		std::cout << "4) See all previous orders" << std::endl;
-		std::cout << "5) See all previous orders, sorted in alphabetical order, as well as the number of orders of each dish" << std::endl;
-		std::cout << "6) See today's turnover" << std::endl;
-		std::cout << "7) End your shift" << std::endl;
-		std::cout << "8) Show all options again" << std::endl;
-		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+		cout << "------------------------------------------------------------------------------------------------------" << endl;
+		cout << "1) See the menu" << endl;
+		cout << "2) Order something from the menu" << endl;
+		cout << "3) Cancel an order" << endl;
+		cout << "4) See all previous orders" << endl;
+		cout << "5) See all previous orders, sorted in alphabetical order, as well as the number of orders of each dish" << endl;
+		cout << "6) See today's turnover" << endl;
+		cout << "7) End your shift" << endl;
+		cout << "8) Show all options again" << endl;
+		cout << "------------------------------------------------------------------------------------------------------" << endl;
 	}
 	else if (role == "Manager")
 	{
-		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
-		std::cout << "1) See the menu" << std::endl;
-		std::cout << "2) Order something from the menu" << std::endl;
-		std::cout << "3) Cancel an order" << std::endl;
-		std::cout << "4) See all previous orders" << std::endl;
-		std::cout << "5) See all previous orders, sorted in alphabetical order, as well as the number of orders of each dish" << std::endl;
-		std::cout << "6) See the quantity for all the remaining products" << std::endl;
-		std::cout << "7) Remove a product from the storage" << std::endl;
-		std::cout << "8) Add a product to the storage" << std::endl;
-		std::cout << "9) See today's turnover" << std::endl;
-		std::cout << "10) Generate today's report" << std::endl;
-		std::cout << "11) See all the turnovers from a certain day to today" << std::endl;
-		std::cout << "12) Add a dish to the Menu" << std::endl;
-		std::cout << "13) Remove a dish from the menu" << std::endl;
-		std::cout << "14) End your day" << std::endl;
-		std::cout << "15) Show all options again" << std::endl;
-		std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+		cout << "------------------------------------------------------------------------------------------------------" << endl;
+		cout << "1) See the menu" << endl;
+		cout << "2) Order something from the menu" << endl;
+		cout << "3) Cancel an order" << endl;
+		cout << "4) See all previous orders" << endl;
+		cout << "5) See all previous orders, sorted in alphabetical order, as well as the number of orders of each dish" << endl;
+		cout << "6) See the quantity for all the remaining products" << endl;
+		cout << "7) Remove a product from the storage" << endl;
+		cout << "8) Add a product to the storage" << endl;
+		cout << "9) See today's turnover" << endl;
+		cout << "10) Generate today's report" << endl;
+		cout << "11) See all the turnovers from a certain day to today" << endl;
+		cout << "12) Add a dish to the Menu" << endl;
+		cout << "13) Remove a dish from the menu" << endl;
+		cout << "14) End your day" << endl;
+		cout << "15) Show all options again" << endl;
+		cout << "------------------------------------------------------------------------------------------------------" << endl;
 	}
 }
 
@@ -321,9 +321,9 @@ static bool validateOption(int option, string role) {
 }
 
 static int printMenu() {
-	std::ifstream file("Menu.txt");
+	ifstream file("Menu.txt");
 	if (!file.is_open()) return 0;
-	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+	cout << "------------------------------------------------------------------------------------------------------" << endl;
 	while (!file.eof()) {
 		string dish;
 		if (dish == "") {
@@ -332,9 +332,9 @@ static int printMenu() {
 		getline(file, dish);
 		int separatorIndex = dish.find('|');
 		string dishName = dish.substr(0, separatorIndex - 1);
-		std::cout << dish << std::endl;
+		cout << dish << endl;
 	}
-	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+	cout << "------------------------------------------------------------------------------------------------------" << endl;
 	return 1;
 }
 
@@ -382,7 +382,7 @@ static int makeAnOrder(string order) {
 static int showRemainingProducts() {
 	ifstream file("Storage.txt");
 	if (!file.is_open()) return 0;
-	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+	cout << "------------------------------------------------------------------------------------------------------" << endl;
 	while (!file.eof()) {
 		string prodData;
 		if (prodData == "") {
@@ -394,7 +394,7 @@ static int showRemainingProducts() {
 		double amount = stod(prodData.substr(nameSeparatorIndex + 1, prodData.length() - 1));
 		cout << name << " -> " << amount << endl;
 	}
-	std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+	cout << "------------------------------------------------------------------------------------------------------" << endl;
 }
 
 static int showAllPreviousOrders() {
@@ -573,7 +573,7 @@ static int printTurnoverData(string date) {
 		string toDate = turnoverData.substr(0, separationIndex);
 		reverse(toDate.begin(), toDate.end());
 		reverse(date.begin(), date.end());
-		if (toDate>= date) {
+		if (toDate >= date) {
 			turnoverData = turnoverData.substr(0, turnoverData.length() - 4);
 			turnoverData.replace(separationIndex, 1, " -> ");
 			turnoverData += "lv.";
@@ -593,17 +593,16 @@ int main()
 
 	while (role != "Manager" && role != "Waiter")
 	{
-		std::cout << "This role was invalid! Please select another one (Waiter or Manager): ";
-		std::cin >> role;
+		cout << "This role was invalid! Please select another one (Waiter or Manager): ";
+		cin >> role;
 	}
 
 	displayUserOptions(role);
 	int option;
-	std::cin >> option;
+	cin >> option;
 	while (validateOption(option, role)) {
 		if (option == 1) {
 			printMenu();
-			break;
 		}
 		if (option == 2) {
 			cout << "What would you like to order(instead of ' ' use '_')?: " << endl;
@@ -617,7 +616,6 @@ int main()
 					cout << "Your order has been successful!" << endl;
 				}
 			}
-			break;
 		}
 		if (option == 3) {
 			cout << "What dish would you like to cancel(instead of ' ' use '_')?: " << endl;
@@ -630,31 +628,27 @@ int main()
 				deleteOrder(dishName);
 				cout << "The order has been cancelled successfully!" << endl;
 			}
-			break;
 		}
 		if (option == 4) {
 			showAllPreviousOrders();
-			break;
 		}
 		if (option == 5) {
 			showSortedOrders();
-			break;
 		}
 		if ((option == 6 && role == "Waiter") || (option == 9 && role == "Manager")) {
 			double turnOver = showTodaysTurnover();
 			cout << "Today's turnover is: " << turnOver << "lv." << endl;
-			break;
 		}
 		if (option == 6 && role == "Manager") {
 			showRemainingProducts();
 		}
 		if (option == 7 && role == "Manager") {
 			string product;
-			std::cout << "Please enter the name of the product: " << std::endl;
-			std::cin >> product;
+			cout << "Please enter the name of the product: " << endl;
+			cin >> product;
 			int amount;
-			std::cout << "Please enter the amount: " << std::endl;
-			std::cin >> amount;
+			cout << "Please enter the amount: " << endl;
+			cin >> amount;
 			int result = deleteProductFromStorage(product, amount, 0);
 			if (result == 0) {
 				cout << "There was an error with removing the selected product!";
@@ -662,15 +656,14 @@ int main()
 			else {
 				cout << "Product has been removed successfully!" << endl;
 			}
-			break;
 		}
 		if (option == 8 && role == "Manager") {
 			string product;
-			std::cout << "Please enter the name of the product: " << std::endl;
-			std::cin >> product;
+			cout << "Please enter the name of the product: " << endl;
+			cin >> product;
 			int amount;
-			std::cout << "Please enter the amount: " << std::endl;
-			std::cin >> amount;
+			cout << "Please enter the amount: " << endl;
+			cin >> amount;
 			int result = addProductToStorage(product, amount);
 			if (result == 0) {
 				cout << "There was an error with adding the selected product!";
@@ -678,11 +671,9 @@ int main()
 			else {
 				cout << "Product has been added successfully!" << endl;
 			}
-			break;
 		}
 		if (option == 10 && role == "Manager") {
 			finishTurnoverForToday();
-			break;
 		}
 		if (option == 11 && role == "Manager") {
 			int day;
@@ -705,7 +696,6 @@ int main()
 			}
 			string date = to_string(day) + '.' + to_string(month) + '.' + to_string(year);
 			printTurnoverData(date);
-			break;
 		}
 		if (option == 12 && role == "Manager") {
 			string name;
@@ -742,7 +732,6 @@ int main()
 				amounts.push_back(amount);
 			}
 			createDish(name, price, ingredients, amounts);
-			break;
 		}
 		if (option == 13 && role == "Manager") {
 			string name;
@@ -758,10 +747,10 @@ int main()
 			else {
 				deleteDish(name);
 			}
-			break;
 		}
 		if ((option == 7 && role == "Waiter") || (option == 14 && role == "Manager")) {
 			displayUserOptions(role);
 		}
+		cin >> option;
 	}
 }
