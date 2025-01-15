@@ -102,22 +102,6 @@ static vector<string> splitStringToStrArr(string str, char separator) {
 	return result;
 }
 
-static double showTodaysTurnover() {
-	ifstream file("Turnovers.txt");
-	string turnover;
-	if (!file.is_open()) return 0;
-	while (!file.eof()) {
-		string check;
-		getline(file, check);
-		if (check == "") continue;
-		turnover = check;
-	}
-	file.close();
-	int separatorIndex = turnover.find('|');
-	double todaysTurnover = stod(turnover.substr(separatorIndex + 1, (turnover.length() - separatorIndex)));
-	return todaysTurnover;
-}
-
 static int finishTurnoverForToday() {
 	fstream file("Turnovers.txt");
 	vector<string> turnovers;
@@ -151,6 +135,13 @@ static int finishTurnoverForToday() {
 	dailyTurnover = 0.00;
 	remove("Turnovers.txt");
 	int result = rename("temp.txt", "Turnovers.txt");
+	ofstream newOrders("tempOrders.txt");
+	ofstream oldOrders("Orders.txt");
+	newOrders.close();
+	oldOrders.close();
+	remove("Orders.txt");
+	result = rename("tempOrders.txt", "Orders.txt");
+	return 1;
 }
 
 static int addProductToStorage(string product, int amount) {
@@ -326,13 +317,13 @@ static int printMenu() {
 	cout << "------------------------------------------------------------------------------------------------------" << endl;
 	while (!file.eof()) {
 		string dish;
+		getline(file, dish);
 		if (dish == "") {
 			continue;
 		}
-		getline(file, dish);
 		int separatorIndex = dish.find('|');
-		string dishName = dish.substr(0, separatorIndex - 1);
-		cout << dish << endl;
+		string dishName = dish.substr(0, separatorIndex);
+		cout << dishName << endl;
 	}
 	cout << "------------------------------------------------------------------------------------------------------" << endl;
 	return 1;
@@ -385,10 +376,10 @@ static int showRemainingProducts() {
 	cout << "------------------------------------------------------------------------------------------------------" << endl;
 	while (!file.eof()) {
 		string prodData;
+		getline(file, prodData);
 		if (prodData == "") {
 			continue;
 		}
-		getline(file, prodData);
 		int nameSeparatorIndex = prodData.find('|');
 		string name = prodData.substr(0, nameSeparatorIndex);
 		double amount = stod(prodData.substr(nameSeparatorIndex + 1, prodData.length() - 1));
@@ -400,7 +391,7 @@ static int showRemainingProducts() {
 static int showAllPreviousOrders() {
 	ifstream file("Orders.txt");
 	if (!file.is_open()) return 0;
-	cout << "" << endl;
+	cout << "------------------------------------------------------------------------------------------------------" << endl;
 	while (!file.eof()) {
 		string dish;
 		getline(file, dish);
@@ -409,7 +400,7 @@ static int showAllPreviousOrders() {
 		}
 		cout << dish << endl;
 	}
-	cout << "" << endl;
+	cout << "------------------------------------------------------------------------------------------------------" << endl;
 }
 
 static int showSortedOrders() {
@@ -451,10 +442,11 @@ static int showSortedOrders() {
 			}
 		}
 	}
-
+	cout << "------------------------------------------------------------------------------------------------------" << endl;
 	for (int i = 0; i < dishes.size(); i++) {
 		cout << dishes[i] << " -> " << numOfOrders[i] << endl;
 	}
+	cout << "------------------------------------------------------------------------------------------------------" << endl;
 	return 1;
 }
 
@@ -604,7 +596,7 @@ int main()
 		if (option == 1) {
 			printMenu();
 		}
-		if (option == 2) {
+		else if (option == 2) {
 			cout << "What would you like to order(instead of ' ' use '_')?: " << endl;
 			string order;
 			cin >> order;
@@ -617,7 +609,7 @@ int main()
 				}
 			}
 		}
-		if (option == 3) {
+		else if (option == 3) {
 			cout << "What dish would you like to cancel(instead of ' ' use '_')?: " << endl;
 			string dishName;
 			cin >> dishName;
@@ -629,20 +621,19 @@ int main()
 				cout << "The order has been cancelled successfully!" << endl;
 			}
 		}
-		if (option == 4) {
+		else if (option == 4) {
 			showAllPreviousOrders();
 		}
-		if (option == 5) {
+		else if (option == 5) {
 			showSortedOrders();
 		}
-		if ((option == 6 && role == "Waiter") || (option == 9 && role == "Manager")) {
-			double turnOver = showTodaysTurnover();
-			cout << "Today's turnover is: " << turnOver << "lv." << endl;
+		else if ((option == 6 && role == "Waiter") || (option == 9 && role == "Manager")) {
+			cout << "Today's turnover is: " << dailyTurnover << "lv." << endl;
 		}
-		if (option == 6 && role == "Manager") {
+		else if (option == 6 && role == "Manager") {
 			showRemainingProducts();
 		}
-		if (option == 7 && role == "Manager") {
+		else if (option == 7 && role == "Manager") {
 			string product;
 			cout << "Please enter the name of the product: " << endl;
 			cin >> product;
@@ -657,7 +648,7 @@ int main()
 				cout << "Product has been removed successfully!" << endl;
 			}
 		}
-		if (option == 8 && role == "Manager") {
+		else if (option == 8 && role == "Manager") {
 			string product;
 			cout << "Please enter the name of the product: " << endl;
 			cin >> product;
@@ -672,10 +663,10 @@ int main()
 				cout << "Product has been added successfully!" << endl;
 			}
 		}
-		if (option == 10 && role == "Manager") {
+		else if (option == 10 && role == "Manager") {
 			finishTurnoverForToday();
 		}
-		if (option == 11 && role == "Manager") {
+		else if (option == 11 && role == "Manager") {
 			int day;
 			int month;
 			int year;
@@ -697,7 +688,7 @@ int main()
 			string date = to_string(day) + '.' + to_string(month) + '.' + to_string(year);
 			printTurnoverData(date);
 		}
-		if (option == 12 && role == "Manager") {
+		else if (option == 12 && role == "Manager") {
 			string name;
 			double price;
 			vector<string> ingredients;
@@ -733,7 +724,7 @@ int main()
 			}
 			createDish(name, price, ingredients, amounts);
 		}
-		if (option == 13 && role == "Manager") {
+		else if (option == 13 && role == "Manager") {
 			string name;
 			cout << "Enter the dish's name(use '_' instead of ' '): " << endl;
 			cin >> name;
@@ -748,7 +739,10 @@ int main()
 				deleteDish(name);
 			}
 		}
-		if ((option == 7 && role == "Waiter") || (option == 14 && role == "Manager")) {
+		else if ((option == 7 && role == "Waiter") || (option == 14 && role == "Manager")) {
+			break;
+		}
+		else if ((option == 8 && role == "Waiter") || (option == 15 && role == "Manager")) {
 			displayUserOptions(role);
 		}
 		cin >> option;
