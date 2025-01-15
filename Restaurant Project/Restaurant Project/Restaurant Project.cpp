@@ -7,8 +7,35 @@ using namespace std;
 
 double dailyTurnover;
 
+static bool isLeapYear(int year) {
+	return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+static int  checkDateInput(int day, int month, int year) {
+
+	if (year < 1 || year > 9999) {
+		return 0;
+	}
+
+	if (month < 1 || month > 12) {
+		return 0;
+	}
+
+	int daysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+	if (month == 2 && isLeapYear(year)) {
+		daysInMonth[1] = 29;
+	}
+
+	if (day < 1 || day > daysInMonth[month - 1]) {
+		return 0;
+	}
+
+	return 1;
+}
+
 static double insertDailyTurnoverOnStart() {
-	double turnover=0.00;
+	double turnover = 0.00;
 	fstream file("Turnovers.txt");
 	if (!file.is_open())return 0;
 	while (!file.eof()) {
@@ -19,10 +46,6 @@ static double insertDailyTurnoverOnStart() {
 		turnover = stod(data.substr(separatorIndex + 1, data.length() - separatorIndex));
 	}
 	return turnover;
-}
-
-static bool isLeapYear(int year) {
-	return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
 int getDaysInMonth(int month, int year) {
@@ -91,7 +114,7 @@ static double showTodaysTurnover() {
 	}
 	file.close();
 	int separatorIndex = turnover.find('|');
-	double todaysTurnover = stod(turnover.substr(separatorIndex+1, (turnover.length()-separatorIndex)));
+	double todaysTurnover = stod(turnover.substr(separatorIndex + 1, (turnover.length() - separatorIndex)));
 	return todaysTurnover;
 }
 
@@ -117,12 +140,12 @@ static int finishTurnoverForToday() {
 	}
 	incrementDate(dateComponentsAsInt[0], dateComponentsAsInt[1], dateComponentsAsInt[2]);
 	string tomorrowsData = to_string(dateComponentsAsInt[0]) + '.' + to_string(dateComponentsAsInt[1]) + '.' + to_string(dateComponentsAsInt[2]);
-	tomorrowsData += "|0.00";
+	tomorrowsData += "|0.000000";
 	turnovers.push_back(tomorrowsData);
 	ofstream newFile("temp.txt");
 	if (!newFile.is_open()) return 0;
 	for (int i = 0; i < turnovers.size(); i++) {
-		newFile << turnovers[i]<<endl;
+		newFile << turnovers[i] << endl;
 	}
 	newFile.close();
 	dailyTurnover = 0.00;
@@ -539,6 +562,28 @@ static int checkIfOrderExists(string name) {
 	return 0;
 }
 
+static int printTurnoverData(string date) {
+	ifstream file("Turnovers.txt");
+	if (!file.is_open()) return 0;
+	cout << endl;
+	while (!file.eof()) {
+		string turnoverData;
+		getline(file, turnoverData);
+		int separationIndex = turnoverData.find('|');
+		string toDate = turnoverData.substr(0, separationIndex);
+		reverse(toDate.begin(), toDate.end());
+		reverse(date.begin(), date.end());
+		if (toDate>= date) {
+			turnoverData = turnoverData.substr(0, turnoverData.length() - 4);
+			turnoverData.replace(separationIndex, 1, " -> ");
+			turnoverData += "lv.";
+			cout << turnoverData << endl;
+		}
+	}
+	cout << endl;
+	file.close();
+}
+
 int main()
 {
 	dailyTurnover = insertDailyTurnoverOnStart();
@@ -597,7 +642,7 @@ int main()
 		}
 		if ((option == 6 && role == "Waiter") || (option == 9 && role == "Manager")) {
 			double turnOver = showTodaysTurnover();
-			cout << "Today's turnover is: " << turnOver<<"lv." << endl;
+			cout << "Today's turnover is: " << turnOver << "lv." << endl;
 			break;
 		}
 		if (option == 6 && role == "Manager") {
@@ -637,6 +682,30 @@ int main()
 		}
 		if (option == 10 && role == "Manager") {
 			finishTurnoverForToday();
+			break;
+		}
+		if (option == 11 && role == "Manager") {
+			int day;
+			int month;
+			int year;
+			cout << "Enter a day(1-31): " << endl;
+			cin >> day;
+			cout << "Enter a month(1-12): " << endl;
+			cin >> month;
+			cout << "Enter an year: " << endl;
+			cin >> year;
+			while (checkDateInput(day, month, year) == 0) {
+				cout << "Sorry, but this date is invalid, let's try again:" << endl;
+				cout << "Enter a day(1-31): " << endl;
+				cin >> day;
+				cout << "Enter a month(1-12): " << endl;
+				cin >> month;
+				cout << "Enter an year: " << endl;
+				cin >> year;
+			}
+			string date = to_string(day) + '.' + to_string(month) + '.' + to_string(year);
+			printTurnoverData(date);
+			break;
 		}
 		if (option == 12 && role == "Manager") {
 			string name;
