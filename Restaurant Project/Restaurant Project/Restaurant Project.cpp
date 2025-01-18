@@ -3,11 +3,11 @@
 * Introduction to programming course
 * Faculty of Mathematics and Informatics of Sofia University
 * Winter semester 2023/2024
-* 
+*
 * @author Georgi Stoyanob
 * @idnumber 6MI0600497
 * @compiler VC
-* 
+*
 * Main file for the project
 */
 
@@ -444,7 +444,6 @@ static int showSortedOrders() {
 	for (int i = 0; i < dishes.size() - 1; ++i) {
 		for (int j = 0; j < dishes.size() - i - 1; ++j) {
 			if (dishes[j] > dishes[j + 1]) {
-				// Swap dishes[j] and dishes[j + 1]
 				string temp = dishes[j];
 				dishes[j] = dishes[j + 1];
 				dishes[j + 1] = temp;
@@ -655,7 +654,7 @@ int main()
 			cin >> amount;
 			int result = deleteProductFromStorage(product, amount, 0);
 			if (result == 0) {
-				cout << "There was an error with removing the selected product!";
+				cout << "There was an error with removing the selected product!" << endl;
 			}
 			else {
 				cout << "Product has been removed successfully!" << endl;
@@ -670,7 +669,7 @@ int main()
 			cin >> amount;
 			int result = addProductToStorage(product, amount);
 			if (result == 0) {
-				cout << "There was an error with adding the selected product!";
+				cout << "There was an error with adding the selected product!" << endl;
 			}
 			else {
 				cout << "Product has been added successfully!" << endl;
