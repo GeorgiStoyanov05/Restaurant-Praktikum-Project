@@ -145,6 +145,7 @@ static int finishTurnoverForToday() {
 		newFile << turnovers[i] << endl;
 	}
 	newFile.close();
+	file.close();
 	dailyTurnover = 0.00;
 	remove("Turnovers.txt");
 	int result = rename("temp.txt", "Turnovers.txt");
@@ -677,6 +678,7 @@ int main()
 		}
 		else if (option == 10 && role == "Manager") {
 			finishTurnoverForToday();
+			cout << "The turnover report has been generated successfully!" << endl;
 		}
 		else if (option == 11 && role == "Manager") {
 			int day;
@@ -735,6 +737,7 @@ int main()
 				amounts.push_back(amount);
 			}
 			createDish(name, price, ingredients, amounts);
+			cout << "The dish has been added successfully!" << endl;
 		}
 		else if (option == 13 && role == "Manager") {
 			string name;
@@ -749,6 +752,7 @@ int main()
 			}
 			else {
 				deleteDish(name);
+				cout << "The dish has been removed successfully!" << endl;
 			}
 		}
 		else if ((option == 7 && role == "Waiter") || (option == 14 && role == "Manager")) {
